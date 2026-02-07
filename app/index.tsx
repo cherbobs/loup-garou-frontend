@@ -7,7 +7,7 @@ import {
 } from "@expo-google-fonts/special-elite";
 import Onboarding from "../components/Onboarding";
 
-export default function App() {
+export default function HomePage() {
   const [fontsLoaded] = useFonts({
     SpecialElite: SpecialElite_400Regular,
   });
@@ -16,14 +16,14 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-       <ImageBackground
+      <ImageBackground
         source={require("../assets/intro.gif")}
         resizeMode="cover"
         style={styles.background}
       >
         <StatusBar style="auto" />
-        <Onboarding/>
-      </ImageBackground> 
+        <Onboarding />
+      </ImageBackground>
     </View>
   );
 }
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   background: {
-    flex: 1, // 🔑 ImageBackground prend tout l'espace dispo
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
