@@ -4,17 +4,20 @@ export default [
     title: "Bienvenue à Thiercelieux",
     description: "",
     image: require("./assets/LOUP-GAROU-LOGO.png"),
+    button: "",
   },
   {
     id: "2",
     title: "Plusieurs rôles",
     description: "Savez-vous mentir ?",
     image: "",
+    button: "",
   },
   {
     id: "3",
     title: "Tout est prêt !",
-    description: "C'est parti!",
+    description: "",
     image: "",
+    button: "C'est parti!",
   },
 ];
