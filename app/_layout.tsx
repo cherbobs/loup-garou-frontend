@@ -10,6 +10,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, StyleSheet, Text, Image } from "react-native";
 import { useEffect } from "react";
+import {
+  useFonts,
+  SpecialElite_400Regular,
+} from "@expo-google-fonts/special-elite";
 
 export const unstable_settings = {
   initialRouteName: "index",
@@ -26,6 +30,11 @@ export default function RootLayout() {
       router.replace("/"); // fallback vers l'accueil
     }
   };
+  const [fontsLoaded] = useFonts({
+    SpecialElite: SpecialElite_400Regular,
+  });
+
+  if (!fontsLoaded) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -52,6 +61,7 @@ export default function RootLayout() {
                     paddingHorizontal: 24,
                     paddingVertical: 10,
                     marginTop: 24,
+                    marginRight: 20,
                   }}
                 >
                   <View
@@ -72,6 +82,7 @@ export default function RootLayout() {
                         color: "#FDE4C5",
                         fontSize: 18,
                         fontFamily: "SpecialElite",
+                        width: "100%",
                       }}
                     >
                       Nombre de joueurs
@@ -84,6 +95,7 @@ export default function RootLayout() {
                       display: "flex",
                       alignItems: "flex-end",
                       justifyContent: "flex-end",
+                      marginRight: 20,
                     }}
                   >
                     <View
