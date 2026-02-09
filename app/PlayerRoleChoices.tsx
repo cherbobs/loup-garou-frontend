@@ -1,11 +1,23 @@
-import { ImageBackground, Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
-import { StatusBar } from "expo-status-bar";
+import {
+  ImageBackground,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
+import NumberPlayerRole from "../components/NumberPlayerRole";
+import { router } from "expo-router";
 
 export default function PlayerRoleChoices() {
   const headerHeight = useHeaderHeight();
+  const MIN = 8;
+  const MAX = 18;
+
+  const [count, setCount] = useState(12);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -20,18 +32,59 @@ export default function PlayerRoleChoices() {
             <View style={styles.select_number_player}>
               <Text style={styles.h4}>Total de joueurs</Text>
               <View style={styles.changing_number}>
-                <Image
-                  source={require("../assets/minus.png")}
-                  style={{ width: 40, height: 48 }}
-                />
-                <Text style={styles.h1}>12</Text>
-                <Image
-                  source={require("../assets/plus.png")}
-                  style={{ width: 40, height: 48 }}
-                />
+                <TouchableOpacity
+                  onPress={() => setCount((prev) => Math.max(MIN, prev - 1))}
+                  disabled={count === MIN}
+                >
+                  <Image
+                    source={require("../assets/minus.png")}
+                    style={{
+                      width: 40,
+                      height: 48,
+                      opacity: count === MIN ? 0.4 : 1,
+                    }}
+                  />
+                </TouchableOpacity>
+
+                <Text style={styles.h1}>{count}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setCount((prev) => Math.min(MAX, prev + 1))}
+                  disabled={count === MAX}
+                >
+                  <Image
+                    source={require("../assets/plus.png")}
+                    style={{
+                      width: 40,
+                      height: 48,
+                      opacity: count === MAX ? 0.4 : 1,
+                    }}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
+          <NumberPlayerRole totalPlayers={count} />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.replace("/PlayerRoleChoices")}
+          >
+            <Image
+              source={require("../assets/right-arrow.png")}
+              style={{
+                width: 12,
+                height: 8,
+              }}
+            />
+            <Text style={styles.textButton}>Commencer la partie</Text>
+            <Image
+              source={require("../assets/left-arrow.png")}
+              style={{
+                width: 12,
+                height: 8,
+              }}
+            />
+          </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
     </View>
@@ -49,6 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     marginHorizontal: 20,
+    gap: 28,
   },
   choosing_player: {
     borderColor: "#CF000A",
@@ -82,5 +136,21 @@ const styles = StyleSheet.create({
     color: "#FF000C",
     fontFamily: "SpecialElite",
     fontSize: 56,
+  },
+  button: {
+    flexDirection: "row",
+    gap: 12,
+    bottom: 36,
+    backgroundColor: "#1A0100",
+    borderColor: "#CF000A",
+    borderWidth: 0.5,
+    borderRadius: 50,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  textButton: {
+    color: "#CF000A",
+    fontFamily: "SpecialElite",
+    fontSize: 12,
   },
 });
