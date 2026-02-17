@@ -67,7 +67,7 @@ export default function PlayerRoleChoices() {
           <NumberPlayerRole totalPlayers={count} />
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.replace("/CardsChoices")}
+            onPress={() => router.push("/CardsChoices")}
           >
             <Image
               source={require("../assets/right-arrow.png")}

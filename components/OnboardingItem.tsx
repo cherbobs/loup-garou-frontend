@@ -36,7 +36,7 @@ export default function OnboardingItem({ item }: Props) {
           {item.id === "3" && (
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.replace("/PlayerRoleChoices")}
+              onPress={() => router.push("/PlayerRoleChoices")}
             >
               <Text style={styles.buttonText}>{item.button}</Text>
               <Image
