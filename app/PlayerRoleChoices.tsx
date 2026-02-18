@@ -11,13 +11,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import NumberPlayerRole from "../components/NumberPlayerRole";
 import { router } from "expo-router";
+import { useGameStore } from "../store/gameStore";
 
 export default function PlayerRoleChoices() {
   const headerHeight = useHeaderHeight();
   const MIN = 8;
   const MAX = 18;
 
-  const [count, setCount] = useState(12);
+  const totalPlayers = useGameStore((s) => s.totalPlayers);
+  const setTotalPlayers = useGameStore((s) => s.setTotalPlayers);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -33,38 +35,42 @@ export default function PlayerRoleChoices() {
               <Text style={styles.h4}>Total de joueurs</Text>
               <View style={styles.changing_number}>
                 <TouchableOpacity
-                  onPress={() => setCount((prev) => Math.max(MIN, prev - 1))}
-                  disabled={count === MIN}
+                  onPress={() =>
+                    setTotalPlayers(Math.max(MIN, totalPlayers - 1))
+                  }
+                  disabled={totalPlayers === MIN}
                 >
                   <Image
                     source={require("../assets/minus.png")}
                     style={{
                       width: 40,
                       height: 48,
-                      opacity: count === MIN ? 0.4 : 1,
+                      opacity: totalPlayers === MIN ? 0.4 : 1,
                     }}
                   />
                 </TouchableOpacity>
 
-                <Text style={styles.h1}>{count}</Text>
+                <Text style={styles.h1}>{totalPlayers}</Text>
 
                 <TouchableOpacity
-                  onPress={() => setCount((prev) => Math.min(MAX, prev + 1))}
-                  disabled={count === MAX}
+                  onPress={() =>
+                    setTotalPlayers(Math.min(MAX, totalPlayers + 1))
+                  }
+                  disabled={totalPlayers === MAX}
                 >
                   <Image
                     source={require("../assets/plus.png")}
                     style={{
                       width: 40,
                       height: 48,
-                      opacity: count === MAX ? 0.4 : 1,
+                      opacity: totalPlayers === MAX ? 0.4 : 1,
                     }}
                   />
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-          <NumberPlayerRole totalPlayers={count} />
+          <NumberPlayerRole totalPlayers={totalPlayers} />
           <TouchableOpacity
             style={styles.button}
             onPress={() => router.push("/CardsChoices")}

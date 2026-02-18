@@ -7,7 +7,7 @@ import {
   Animated,
   ViewToken,
 } from "react-native";
-import data from "../data-player-role";
+import data from "../data/data-player-role";
 import NumberPlayerRoleItem from "./NumberPlayerRoleItem";
 
 type Props = {

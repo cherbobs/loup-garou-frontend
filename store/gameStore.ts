@@ -1,0 +1,92 @@
+import { create } from "zustand";
+import { Player, RoleKey, GamePhase } from "./types";
+import { roleDistribution } from "./roleDistribution";
+
+type GameState = {
+  totalPlayers: number;
+  players: Player[];
+  phase: GamePhase;
+
+  // Actions
+  setTotalPlayers: (count: number) => void;
+  addPlayer: (name: string) => void;
+  removePlayer: (id: string) => void;
+  assignRoles: () => void;
+  killPlayer: (id: string) => void;
+  setPhase: (phase: GamePhase) => void;
+  resetGame: () => void;
+};
+
+export const useGameStore = create<GameState>((set, get) => ({
+  totalPlayers: 12,
+  players: [],
+  phase: "setup",
+
+  setTotalPlayers: (count) => set({ totalPlayers: count }),
+  addPlayer: (name) =>
+    set((state) => ({
+      players: [
+        ...state.players,
+        {
+          id: crypto.randomUUID(),
+          name,
+          status: "alive",
+        },
+      ],
+    })),
+
+  removePlayer: (id) =>
+    set((state) => ({
+      players: state.players.filter((p) => p.id !== id),
+    })),
+
+  assignRoles: () => {
+    const players = get().players;
+    const playerCount = players.length;
+
+    const distribution = roleDistribution[playerCount];
+
+    if (!distribution) {
+      console.warn("Nombre de joueurs non supporté");
+      return;
+    }
+
+    // 1️⃣ Transformer la distribution en tableau de rôles
+    const rolesArray: RoleKey[] = [];
+
+    (Object.keys(distribution) as RoleKey[]).forEach((role) => {
+      for (let i = 0; i < distribution[role]; i++) {
+        rolesArray.push(role);
+      }
+    });
+
+    // 2️⃣ Mélanger les rôles
+    const shuffled = rolesArray.sort(() => Math.random() - 0.5);
+
+    // 3️⃣ Assigner aux joueurs
+    const updatedPlayers = players.map((player, index) => ({
+      ...player,
+      role: shuffled[index],
+    }));
+
+    set({
+      players: updatedPlayers,
+      phase: "night",
+    });
+  },
+
+  killPlayer: (id) =>
+    set((state) => ({
+      players: state.players.map((p) =>
+        p.id === id ? { ...p, status: "dead" } : p
+      ),
+    })),
+
+  setPhase: (phase) => set({ phase }),
+
+  resetGame: () =>
+    set({
+      players: [],
+      phase: "setup",
+    }),
+}));
