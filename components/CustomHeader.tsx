@@ -24,10 +24,11 @@ export default function CustomHeader({ title }: Props) {
         height: 120,
         flexDirection: "row",
         alignItems: "center",
-        paddingHorizontal: 24,
+        paddingLeft: 24,
         paddingVertical: 10,
         marginTop: 24,
         marginRight: 20,
+        width: "100%",
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "flex-end" }}>

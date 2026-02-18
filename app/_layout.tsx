@@ -6,7 +6,6 @@ import {
 import { usePathname, Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Pressable, useColorScheme } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, StyleSheet, Text, Image } from "react-native";
 import { useEffect } from "react";
@@ -24,15 +23,9 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
 
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/"); // fallback vers l'accueil
-    }
-  };
   const [fontsLoaded] = useFonts({
     SpecialElite: SpecialElite_400Regular,
+    Cotton: require("../assets/fonts/Cotton-Regular.ttf"),
   });
 
   if (!fontsLoaded) return null;
