@@ -1,3 +1,4 @@
+// ./store/gameStore.ts
 import { create } from "zustand";
 import { Player, RoleKey, GamePhase } from "./types";
 import { roleDistribution } from "./roleDistribution";
@@ -15,6 +16,8 @@ type GameState = {
   killPlayer: (id: string) => void;
   setPhase: (phase: GamePhase) => void;
   resetGame: () => void;
+  setPlayerName: (index: number, name: string) => void;
+  initPlayers: () => void;
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -23,6 +26,27 @@ export const useGameStore = create<GameState>((set, get) => ({
   phase: "setup",
 
   setTotalPlayers: (count) => set({ totalPlayers: count }),
+  initPlayers: () => {
+    const total = get().totalPlayers;
+
+    set({
+      players: Array.from({ length: total }, (_, index) => ({
+        id: index.toString(),
+        name: "",
+        status: "alive",
+      })),
+    });
+  },
+
+  setPlayerName: (index, name) =>
+    set((state) => {
+      const updated = [...state.players];
+      updated[index] = {
+        ...updated[index],
+        name,
+      };
+      return { players: updated };
+    }),
   addPlayer: (name) =>
     set((state) => ({
       players: [
@@ -51,7 +75,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    // 1️⃣ Transformer la distribution en tableau de rôles
     const rolesArray: RoleKey[] = [];
 
     (Object.keys(distribution) as RoleKey[]).forEach((role) => {
@@ -60,10 +83,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
-    // 2️⃣ Mélanger les rôles
     const shuffled = rolesArray.sort(() => Math.random() - 0.5);
 
-    // 3️⃣ Assigner aux joueurs
     const updatedPlayers = players.map((player, index) => ({
       ...player,
       role: shuffled[index],

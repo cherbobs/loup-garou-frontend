@@ -1,25 +1,36 @@
 import {
   View,
   Text,
+  Image,
   ImageBackground,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useGameStore } from "../store/gameStore";
-import { router } from "expo-router";
 
 export default function CardsChoices() {
-  const [showBox, setShowBox] = useState(false);
   const headerHeight = useHeaderHeight();
-  const totalPlayers = useGameStore((s) => s.totalPlayers);
-  const playersArray = Array.from({ length: totalPlayers }, (_, i) => ({
-    id: i.toString(),
-  }));
 
+  const [showBox, setShowBox] = useState(false);
+  const [text, setText] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const initPlayers = useGameStore((s) => s.initPlayers);
+  const players = useGameStore((s) => s.players);
+  const setPlayerName = useGameStore((s) => s.setPlayerName);
+
+  useEffect(() => {
+    initPlayers();
+  }, []);
+  console.log(players);
+  const allPlayersReady = players.every(
+    (player) => player.name && player.name.trim() !== ""
+  );
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -34,27 +45,68 @@ export default function CardsChoices() {
             <Text style={styles.h1}>Choisis une carte</Text>
             <Text style={styles.text}>et passe à ton voisin</Text>
           </View>
+
           <FlatList
-            data={playersArray}
-            keyExtractor={(item) => item.id}
-            renderItem={() => (
-              <TouchableOpacity
-                style={styles.card}
-                onPress={() => setShowBox(true)}
-              >
-                <ImageBackground
-                  source={require("../assets/background-card.png")}
-                  style={styles.cardBackground}
-                  imageStyle={{ borderRadius: 12 }}
-                ></ImageBackground>
-              </TouchableOpacity>
-            )}
+            data={players}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item, index }) => {
+              const isFilled = !!item.name;
+
+              return (
+                <TouchableOpacity
+                  style={[styles.card, isFilled && { opacity: 0.4 }]}
+                  disabled={isFilled}
+                  onPress={() => {
+                    setSelectedIndex(index);
+                    setShowBox(true);
+                  }}
+                >
+                  <ImageBackground
+                    source={require("../assets/background-card.png")}
+                    style={styles.cardBackground}
+                    imageStyle={{ borderRadius: 12 }}
+                  >
+                    {isFilled && (
+                      <Text style={styles.playerName}>{item.name}</Text>
+                    )}
+                  </ImageBackground>
+                </TouchableOpacity>
+              );
+            }}
             numColumns={2}
             contentContainerStyle={{
               alignItems: "center",
               paddingBottom: 120,
             }}
+            ListFooterComponent={
+              <TouchableOpacity
+                style={[styles.button, !allPlayersReady && { opacity: 0.4 }]}
+                disabled={!allPlayersReady}
+                onPress={() => {
+                  if (allPlayersReady) {
+                    console.log("Start game");
+                  }
+                }}
+              >
+                <Image
+                  source={require("../assets/right-arrow.png")}
+                  style={{
+                    width: 12,
+                    height: 8,
+                  }}
+                />
+                <Text style={styles.textButton}>Commencer la partie</Text>
+                <Image
+                  source={require("../assets/left-arrow.png")}
+                  style={{
+                    width: 12,
+                    height: 8,
+                  }}
+                />
+              </TouchableOpacity>
+            }
           />
+
           {showBox && (
             <View style={styles.overlay}>
               <ImageBackground
@@ -62,12 +114,27 @@ export default function CardsChoices() {
                 resizeMode="cover"
                 style={styles.backgroundBox}
               >
-                <Text style={styles.boxText}>Ceci est un rectangle bleu !</Text>
+                <Text style={styles.h1}>Entre ton nom</Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Prénom"
+                  value={text}
+                  onChangeText={setText}
+                  placeholderTextColor="#6F6457"
+                />
+
                 <TouchableOpacity
                   style={styles.closeButton}
-                  onPress={() => setShowBox(false)}
+                  onPress={() => {
+                    if (selectedIndex !== null && text.trim()) {
+                      setPlayerName(selectedIndex, text.trim());
+                    }
+                    setText("");
+                    setShowBox(false);
+                  }}
                 >
-                  <Text style={styles.closeButtonText}>Fermer</Text>
+                  <Text style={styles.closeButtonText}>Valider</Text>
                 </TouchableOpacity>
               </ImageBackground>
             </View>
@@ -135,6 +202,7 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    gap: 16,
   },
 
   boxText: {
@@ -143,12 +211,52 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   closeButton: {
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 6,
+    backgroundColor: "#1A0100",
+    borderColor: "#CF000A",
+    borderWidth: 0.5,
+    borderRadius: 50,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   closeButtonText: {
-    color: "blue",
-    fontWeight: "bold",
+    color: "#CF000A",
+    fontFamily: "SpecialElite",
+    fontSize: 12,
+  },
+  input: {
+    height: 40,
+    width: "75%",
+    paddingHorizontal: 10,
+    marginVertical: 10,
+    color: "#FDE4C5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#FDE4C5",
+  },
+  playerName: {
+    position: "absolute",
+    bottom: 20,
+    alignSelf: "center",
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "SpecialElite",
+    textAlign: "center",
+  },
+
+  button: {
+    marginTop: 30,
+    marginBottom: 40,
+    flexDirection: "row",
+    gap: 12,
+    backgroundColor: "#1A0100",
+    borderColor: "#CF000A",
+    borderWidth: 0.5,
+    borderRadius: 50,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  textButton: {
+    color: "#CF000A",
+    fontFamily: "SpecialElite",
+    fontSize: 12,
   },
 });

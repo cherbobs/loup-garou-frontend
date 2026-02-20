@@ -1,3 +1,4 @@
+// ./store/type.ts
 export type RoleKey = "werewolf" | "villager" | "witch" | "seer" | "nurse";
 
 export type PlayerStatus = "alive" | "dead";
