@@ -17,6 +17,7 @@ export default function CardsChoices() {
   const headerHeight = useHeaderHeight();
 
   const [showBox, setShowBox] = useState(false);
+  const [showRoleBox, setShowRoleBox] = useState(false);
   const [text, setText] = useState("");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -130,11 +131,34 @@ export default function CardsChoices() {
                     if (selectedIndex !== null && text.trim()) {
                       setPlayerName(selectedIndex, text.trim());
                     }
+
                     setText("");
-                    setShowBox(false);
+                    setShowBox(false); // ferme la première box
+                    setShowRoleBox(true); // ouvre la RoleBox
                   }}
                 >
                   <Text style={styles.closeButtonText}>Valider</Text>
+                </TouchableOpacity>
+              </ImageBackground>
+            </View>
+          )}
+          {showRoleBox && (
+            <View style={styles.overlay}>
+              <ImageBackground
+                source={require("../assets/background.png")}
+                resizeMode="cover"
+                style={styles.backgroundBox}
+              >
+                <Text style={styles.h1}>Choisis ton rôle</Text>
+
+                {/* Exemple simple */}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => {
+                    setShowRoleBox(false);
+                  }}
+                >
+                  <Text style={styles.closeButtonText}>Fermer</Text>
                 </TouchableOpacity>
               </ImageBackground>
             </View>
