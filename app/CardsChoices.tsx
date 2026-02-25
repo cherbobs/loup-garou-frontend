@@ -133,8 +133,8 @@ export default function CardsChoices() {
                     }
 
                     setText("");
-                    setShowBox(false); // ferme la première box
-                    setShowRoleBox(true); // ouvre la RoleBox
+                    setShowBox(false);
+                    setShowRoleBox(true);
                   }}
                 >
                   <Text style={styles.closeButtonText}>Valider</Text>
@@ -151,7 +151,6 @@ export default function CardsChoices() {
               >
                 <Text style={styles.h1}>Choisis ton rôle</Text>
 
-                {/* Exemple simple */}
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={() => {
