@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { RoleKey } from "../player-roles.types";
-import { roleDistribution } from "../store/roleDistribution";
+import { roleDistribution } from "../store/constants/roleDistribution";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type NumberPlayerRoleItemType = {

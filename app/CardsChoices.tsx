@@ -9,6 +9,8 @@ import {
   TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import roleAssignmentData from "../data/data-role-assignement";
+import RoleAssignmentItem from "../components/RoleAssignmentItem";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useGameStore } from "../store/gameStore";
@@ -24,7 +26,7 @@ export default function CardsChoices() {
   const initPlayers = useGameStore((s) => s.initPlayers);
   const players = useGameStore((s) => s.players);
   const setPlayerName = useGameStore((s) => s.setPlayerName);
-
+  const selectedPlayer = selectedIndex !== null ? players[selectedIndex] : null;
   useEffect(() => {
     initPlayers();
   }, []);
@@ -32,6 +34,9 @@ export default function CardsChoices() {
   const allPlayersReady = players.every(
     (player) => player.name && player.name.trim() !== ""
   );
+  const roleItem = selectedPlayer?.role
+    ? roleAssignmentData.find((item) => item.key === selectedPlayer.role)
+    : null;
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -149,7 +154,7 @@ export default function CardsChoices() {
                 resizeMode="cover"
                 style={styles.backgroundBox}
               >
-                <Text style={styles.h1}>Choisis ton rôle</Text>
+                {roleItem && <RoleAssignmentItem item={roleItem} />}
 
                 <TouchableOpacity
                   style={styles.closeButton}

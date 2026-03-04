@@ -20,6 +20,9 @@ export default function PlayerRoleChoices() {
 
   const totalPlayers = useGameStore((s) => s.totalPlayers);
   const setTotalPlayers = useGameStore((s) => s.setTotalPlayers);
+  const prepareRoles = useGameStore((s) => s.prepareRoles);
+  const initPlayers = useGameStore((s) => s.initPlayers);
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -73,7 +76,11 @@ export default function PlayerRoleChoices() {
           <NumberPlayerRole totalPlayers={totalPlayers} />
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("/CardsChoices")}
+            onPress={() => {
+              initPlayers();
+              prepareRoles(totalPlayers);
+              router.push("/CardsChoices");
+            }}
           >
             <Image
               source={require("../assets/right-arrow.png")}

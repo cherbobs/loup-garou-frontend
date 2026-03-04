@@ -1,100 +1,66 @@
 // ./store/gameStore.ts
 import { create } from "zustand";
-import { Player, RoleKey, GamePhase } from "./types";
-import { roleDistribution } from "./roleDistribution";
+import { Player, GamePhase, RoleKey } from "./types";
+import { generateRoles } from "./utils/role";
 
 type GameState = {
   totalPlayers: number;
   players: Player[];
+  shuffledRoles: RoleKey[];
   phase: GamePhase;
 
-  // Actions
+  // Actions$
+  prepareRoles: (playerCount: number) => void;
   setTotalPlayers: (count: number) => void;
-  addPlayer: (name: string) => void;
-  removePlayer: (id: string) => void;
-  assignRoles: () => void;
+  initPlayers: () => void;
+  setPlayerName: (index: number, name: string) => void;
   killPlayer: (id: string) => void;
   setPhase: (phase: GamePhase) => void;
   resetGame: () => void;
-  setPlayerName: (index: number, name: string) => void;
-  initPlayers: () => void;
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
   totalPlayers: 12,
   players: [],
+  shuffledRoles: [],
   phase: "setup",
+  prepareRoles: (playerCount: number) => {
+    const roles = generateRoles(playerCount);
 
+    set(() => ({
+      shuffledRoles: roles,
+    }));
+  },
   setTotalPlayers: (count) => set({ totalPlayers: count }),
+
   initPlayers: () => {
     const total = get().totalPlayers;
+
+    const roles = generateRoles(total);
 
     set({
       players: Array.from({ length: total }, (_, index) => ({
         id: index.toString(),
         name: "",
+        role: undefined,
         status: "alive",
       })),
+      shuffledRoles: roles,
     });
   },
 
   setPlayerName: (index, name) =>
     set((state) => {
       const updated = [...state.players];
+
       updated[index] = {
         ...updated[index],
         name,
+        role: state.shuffledRoles[index],
       };
+
       return { players: updated };
     }),
-  addPlayer: (name) =>
-    set((state) => ({
-      players: [
-        ...state.players,
-        {
-          id: crypto.randomUUID(),
-          name,
-          status: "alive",
-        },
-      ],
-    })),
-
-  removePlayer: (id) =>
-    set((state) => ({
-      players: state.players.filter((p) => p.id !== id),
-    })),
-
-  assignRoles: () => {
-    const players = get().players;
-    const playerCount = players.length;
-
-    const distribution = roleDistribution[playerCount];
-
-    if (!distribution) {
-      console.warn("Nombre de joueurs non supporté");
-      return;
-    }
-
-    const rolesArray: RoleKey[] = [];
-
-    (Object.keys(distribution) as RoleKey[]).forEach((role) => {
-      for (let i = 0; i < distribution[role]; i++) {
-        rolesArray.push(role);
-      }
-    });
-
-    const shuffled = rolesArray.sort(() => Math.random() - 0.5);
-
-    const updatedPlayers = players.map((player, index) => ({
-      ...player,
-      role: shuffled[index],
-    }));
-
-    set({
-      players: updatedPlayers,
-      phase: "night",
-    });
-  },
 
   killPlayer: (id) =>
     set((state) => ({
@@ -108,6 +74,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetGame: () =>
     set({
       players: [],
+      shuffledRoles: [],
       phase: "setup",
     }),
 }));
