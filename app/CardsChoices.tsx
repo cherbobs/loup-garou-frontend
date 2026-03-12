@@ -14,6 +14,7 @@ import RoleAssignmentItem from "../components/RoleAssignmentItem";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useGameStore } from "../store/gameStore";
+import { router } from "expo-router";
 
 export default function CardsChoices() {
   const headerHeight = useHeaderHeight();
@@ -26,6 +27,7 @@ export default function CardsChoices() {
   const initPlayers = useGameStore((s) => s.initPlayers);
   const players = useGameStore((s) => s.players);
   const setPlayerName = useGameStore((s) => s.setPlayerName);
+  const setPhase = useGameStore((s) => s.setPhase);
   const selectedPlayer = selectedIndex !== null ? players[selectedIndex] : null;
   useEffect(() => {
     initPlayers();
@@ -91,6 +93,8 @@ export default function CardsChoices() {
                 onPress={() => {
                   if (allPlayersReady) {
                     console.log("Start game");
+                    setPhase("night");
+                    router.push("/Game");
                   }
                 }}
               >

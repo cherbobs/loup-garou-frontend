@@ -8,6 +8,13 @@ export type Player = {
   name: string;
   role?: RoleKey;
   status: PlayerStatus;
+  isTargetedByWerewolves: boolean;
 };
 
 export type GamePhase = "setup" | "night" | "day" | "ended";
+
+export type NightStep = "werewolves" | "seer" | "witch" | "nurse";
+
+export type DayStep = "reveal" | "discussion" | "vote" | "elimination";
+
+export type GameStep = NightStep | DayStep | null;

@@ -53,6 +53,15 @@ export default function RootLayout() {
               header: () => <CustomHeader title="Choix des cartes" />,
             }}
           />
+          <Stack.Screen
+            name="Game"
+            options={{
+              headerShown: true,
+              headerTransparent: true,
+              headerShadowVisible: false,
+              header: () => <CustomHeader title="Jeu" />,
+            }}
+          />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>
