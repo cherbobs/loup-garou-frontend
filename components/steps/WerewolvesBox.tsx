@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   h1: {
-    color: "#FF000C",
+    color: "#CDB496",
     fontFamily: "Cotton",
     fontSize: 48,
     textTransform: "uppercase",
