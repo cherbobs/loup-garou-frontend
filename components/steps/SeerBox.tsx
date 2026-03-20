@@ -1,21 +1,76 @@
 import {
   View,
   Text,
-  Image,
   ImageBackground,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
-  TextInput,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useGameStore } from "../../store/gameStore";
-import { router } from "expo-router";
+import { Player } from "../../store/types";
 
 export default function SeerBox() {
-  const headerHeight = useHeaderHeight();
+  const [activeMessageIndex, setActiveMessageIndex] = useState(0);
+  const players = useGameStore((s) => s.players);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const usePoison = useGameStore((s) => s.usePoison);
+  const [killBox, setKillBox] = useState(false);
+  const [killSomeoneBox, setKillSomeoneBox] = useState(false);
+  const nextStep = useGameStore((state) => state.nextStep);
+  const useResurrection = useGameStore((state) => state.useResurrection);
+  const hasResurrection = useGameStore(
+    (state) => state.witchPotions.hasResurrection,
+  );
+  const hasPoison = useGameStore((state) => state.witchPotions.hasPoison);
+  const [isSleeping, setIsSleeping] = useState(false);
+  const witchPotions = useGameStore((state) => state.witchPotions);
+
+  const targetedPlayer = useGameStore((state) =>
+    state.players.find((p) => p.isTargetedByWerewolves),
+  );
+  const handleSave = () => {
+    if (targetedPlayer && hasResurrection) {
+      useResurrection(targetedPlayer.id);
+      console.log(hasResurrection);
+      nextStep();
+    }
+  };
+
+  const handleNoSave = () => {
+    console.log("witchPotions depuis le composant :", witchPotions);
+    nextStep();
+  };
+
+  const handleFinalizeAction = () => {
+    setSelectedPlayer(null);
+    setIsSleeping(true);
+    console.log("witchPotions depuis le composant :", witchPotions);
+    nextStep();
+  };
+  const handleConfirmVote = () => {
+    console.log(selectedPlayer);
+    console.log(hasPoison);
+
+    if (selectedPlayer && hasPoison) {
+      usePoison(selectedPlayer.id);
+
+      console.log(hasPoison);
+      handleFinalizeAction();
+    }
+  };
+  const SequenceText = ["La sorcière se réveille"];
+
+  useEffect(() => {
+    if (activeMessageIndex < SequenceText.length) {
+      const timer = setTimeout(() => {
+        setActiveMessageIndex((prevIndex) => prevIndex + 1);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [activeMessageIndex]);
 
   return (
     <View style={styles.container}>
@@ -24,12 +79,170 @@ export default function SeerBox() {
         resizeMode="cover"
         style={styles.background}
       >
-        <SafeAreaView
-          style={[styles.safeContent, { paddingTop: headerHeight / 2 }]}
-        >
+        <SafeAreaView style={styles.safeContent}>
           <View style={styles.textcontainer}>
-            <Text style={styles.text}>Seer</Text>
+            {isSleeping ? (
+              <Text style={styles.text}>La sorcière se rendort...</Text>
+            ) : activeMessageIndex < SequenceText.length ? (
+              <Text style={styles.text}>
+                {SequenceText[activeMessageIndex]}
+              </Text>
+            ) : (
+              <View style={styles.box}>
+                <View style={styles.textBox}>
+                  <Text style={styles.playerName}>{targetedPlayer?.name}</Text>
+                  <Text style={styles.h1}>
+                    a été tué par les loups. Voulez vous sauver cette personne ?
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row", gap: 20 }}>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    style={[styles.closeButton, { borderColor: "#FDE4C5" }]}
+                  >
+                    <Text
+                      style={[styles.closeButtonText, { color: "#FDE4C5" }]}
+                    >
+                      Oui
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => {
+                      setKillBox(true);
+                    }}
+                  >
+                    <Text style={styles.closeButtonText}>Non</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
           </View>
+          {killBox && (
+            <View style={styles.overlay}>
+              <ImageBackground
+                source={require("../../assets/background.png")}
+                resizeMode="cover"
+                style={styles.backgroundBox}
+              >
+                <View style={styles.box}>
+                  <View style={styles.textBox}>
+                    <Text style={styles.h1}>
+                      Voulez-vous éliminer quelqu'un ?
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: "row", gap: 20 }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setKillSomeoneBox(true);
+                      }}
+                      style={[styles.closeButton, { borderColor: "#FDE4C5" }]}
+                    >
+                      <Text
+                        style={[styles.closeButtonText, { color: "#FDE4C5" }]}
+                      >
+                        Oui
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={handleNoSave}
+                    >
+                      <Text style={styles.closeButtonText}>Non</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ImageBackground>
+            </View>
+          )}
+          {killSomeoneBox && (
+            <View style={styles.overlay}>
+              <ImageBackground
+                source={require("../../assets/background.png")}
+                resizeMode="cover"
+                style={styles.backgroundBox}
+              >
+                <View style={styles.box}>
+                  <FlatList
+                    data={players}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }: { item: Player }) => {
+                      const isTargetedByWerewolves =
+                        !!item.isTargetedByWerewolves;
+                      const isFilled = !!item.name;
+
+                      return (
+                        <TouchableOpacity
+                          style={[
+                            styles.card,
+                            isTargetedByWerewolves && { opacity: 0.4 },
+                          ]}
+                          disabled={isTargetedByWerewolves}
+                          onPress={() => {
+                            setSelectedPlayer(item);
+                          }}
+                        >
+                          <ImageBackground
+                            source={require("../../assets/background-card.png")}
+                            style={styles.cardBackground}
+                            imageStyle={{ borderRadius: 12 }}
+                          >
+                            {isFilled && (
+                              <Text style={styles.CardPlayerName}>
+                                {item.name}
+                              </Text>
+                            )}
+                          </ImageBackground>
+                        </TouchableOpacity>
+                      );
+                    }}
+                    numColumns={2}
+                    contentContainerStyle={{
+                      alignItems: "center",
+                      paddingBottom: 120,
+                    }}
+                  />
+                </View>
+              </ImageBackground>
+            </View>
+          )}
+          {selectedPlayer && (
+            <View style={styles.overlay}>
+              <ImageBackground
+                source={require("../../assets/background.png")}
+                resizeMode="cover"
+                style={styles.backgroundBox}
+              >
+                <Text style={styles.h1}>
+                  Etes-vous sûr de vouloir voter pour {selectedPlayer.name}
+                </Text>
+                <View style={{ flexDirection: "row", gap: 20 }}>
+                  <TouchableOpacity
+                    style={[styles.closeButton, { borderColor: "#FDE4C5" }]}
+                    onPress={() => {
+                      handleConfirmVote();
+                      console.log("click");
+                    }}
+                  >
+                    <Text
+                      style={[styles.closeButtonText, { color: "#FDE4C5" }]}
+                    >
+                      Confirmer
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setSelectedPlayer(null)}
+                  >
+                    <Text style={styles.closeButtonText}>Annuler</Text>
+                  </TouchableOpacity>
+                </View>
+              </ImageBackground>
+            </View>
+          )}
         </SafeAreaView>
       </ImageBackground>
     </View>
@@ -44,24 +257,75 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   safeContent: {
+    flex: 1,
     flexDirection: "column",
-    gap: 36,
+    alignItems: "center",
+    justifyContent: "center",
   },
   textcontainer: {
     gap: 4,
+    alignItems: "center",
+    justifyContent: "center",
   },
   h1: {
-    color: "#FF000C",
+    color: "#FDE4C5",
     fontFamily: "Cotton",
-    fontSize: 48,
+    fontSize: 32,
     textTransform: "uppercase",
     textAlign: "center",
+  },
+  playerName: {
+    color: "#FF000C",
+    fontFamily: "Cotton",
+    fontSize: 32,
   },
   text: {
     color: "#CDB496",
     fontFamily: "SpecialElite",
     fontSize: 16,
     textAlign: "center",
+  },
+  textBox: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 12,
+  },
+  box: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 24,
+  },
+
+  closeButton: {
+    backgroundColor: "#1A0100",
+    borderColor: "#CF000A",
+    borderWidth: 0.5,
+    borderRadius: 50,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  closeButtonText: {
+    color: "#CF000A",
+    fontFamily: "SpecialElite",
+    fontSize: 12,
+  },
+  backgroundBox: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
   },
   card: {
     width: 160,
@@ -76,54 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 10,
-  },
-
-  backgroundBox: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-  },
-
-  boxText: {
-    color: "white",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  closeButton: {
-    backgroundColor: "#1A0100",
-    borderColor: "#CF000A",
-    borderWidth: 0.5,
-    borderRadius: 50,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  closeButtonText: {
-    color: "#CF000A",
-    fontFamily: "SpecialElite",
-    fontSize: 12,
-  },
-  input: {
-    height: 40,
-    width: "75%",
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    color: "#FDE4C5",
-    borderBottomWidth: 1,
-    borderBottomColor: "#FDE4C5",
-  },
-  playerName: {
+  CardPlayerName: {
     position: "absolute",
     bottom: 20,
     alignSelf: "center",
@@ -131,23 +348,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "SpecialElite",
     textAlign: "center",
-  },
-
-  button: {
-    marginTop: 30,
-    marginBottom: 40,
-    flexDirection: "row",
-    gap: 12,
-    backgroundColor: "#1A0100",
-    borderColor: "#CF000A",
-    borderWidth: 0.5,
-    borderRadius: 50,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  textButton: {
-    color: "#CF000A",
-    fontFamily: "SpecialElite",
-    fontSize: 12,
   },
 });

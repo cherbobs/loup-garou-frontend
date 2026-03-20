@@ -17,8 +17,9 @@ type GameState = {
   shuffledRoles: RoleKey[];
   phase: GamePhase;
   step: GameStep;
+  witchPotions: { hasResurrection: boolean; hasPoison: boolean };
 
-  // Actions$
+  // Actions
   prepareRoles: (playerCount: number) => void;
   setTotalPlayers: (count: number) => void;
   initPlayers: () => void;
@@ -29,6 +30,8 @@ type GameState = {
   nextStep: () => void;
   startNight: () => void;
   startDay: () => void;
+  useResurrection: (id: string) => void;
+  usePoison: (id: string) => void;
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -37,6 +40,27 @@ export const useGameStore = create<GameState>((set, get) => ({
   players: [],
   shuffledRoles: [],
   phase: "setup",
+  witchPotions: {
+    hasResurrection: true,
+    hasPoison: true,
+  },
+
+  useResurrection: (id: string) =>
+    set((state) => ({
+      players: state.players.map((p) =>
+        p.id === id ? { ...p, isTargetedByWerewolves: false } : p,
+      ),
+      witchPotions: { ...state.witchPotions, hasResurrection: false },
+    })),
+
+  usePoison: (id: string) =>
+    set((state) => ({
+      players: state.players.map((p) =>
+        p.id === id ? { ...p, isTargetedByWitch: true } : p,
+      ),
+      witchPotions: { ...state.witchPotions, hasPoison: false },
+    })),
+
   prepareRoles: (playerCount: number) => {
     const roles = generateRoles(playerCount);
 
@@ -58,8 +82,10 @@ export const useGameStore = create<GameState>((set, get) => ({
         role: undefined,
         status: "alive",
         isTargetedByWerewolves: false,
+        isTargetedByWitch: false,
       })),
       shuffledRoles: roles,
+      witchPotions: { hasResurrection: true, hasPoison: true },
     });
   },
 
@@ -79,7 +105,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   killPlayer: (id) =>
     set((state) => ({
       players: state.players.map((p) =>
-        p.id === id ? { ...p, status: "dead" } : p
+        p.id === id ? { ...p, status: "dead" } : p,
       ),
     })),
 
@@ -90,6 +116,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       players: [],
       shuffledRoles: [],
       phase: "setup",
+      witchPotions: { hasResurrection: true, hasPoison: true },
     }),
   startNight: () =>
     set({
@@ -146,7 +173,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   savePlayer: (id: string) =>
     set((state) => ({
       players: state.players.map((p) =>
-        p.id === id ? { ...p, isTargetedByWerewolves: false } : p
+        p.id === id ? { ...p, isTargetedByWerewolves: false } : p,
       ),
     })),
 }));

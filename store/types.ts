@@ -9,8 +9,13 @@ export type Player = {
   role?: RoleKey;
   status: PlayerStatus;
   isTargetedByWerewolves: boolean;
+  isTargetedByWitch: boolean;
 };
 
+export type WitchPotions = {
+  hasResurrection: boolean;
+  hasPoison: boolean;
+};
 export type GamePhase = "setup" | "night" | "day" | "ended";
 
 export type NightStep = "werewolves" | "seer" | "witch" | "nurse";

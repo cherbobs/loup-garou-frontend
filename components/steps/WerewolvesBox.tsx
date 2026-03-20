@@ -8,19 +8,16 @@ import {
   ImageBackground,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useGameStore } from "../../store/gameStore";
-import { router } from "expo-router";
 import { Player } from "../../store/types";
 
 export default function WerewolvesBox() {
-  const headerHeight = useHeaderHeight();
-
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const nextStep = useGameStore((s) => s.nextStep);
   const players = useGameStore((s) => s.players);
   const setTargetedPlayer = useGameStore((s) => s.setTargetedPlayer);
   const [activeMessageIndex, setActiveMessageIndex] = useState(0);
+  const [isSleeping, setIsSleeping] = useState(false);
 
   const SequenceText = [
     "Le village s'endort...",
@@ -37,19 +34,26 @@ export default function WerewolvesBox() {
     }
   }, [activeMessageIndex]);
 
+  const handleFinalizeAction = () => {
+    setSelectedPlayer(null);
+    setIsSleeping(true);
+
+    setTimeout(() => {
+      nextStep();
+    }, 5000);
+  };
   const handleConfirmVote = () => {
     if (selectedPlayer) {
       setTargetedPlayer(selectedPlayer.id);
-
-      setSelectedPlayer(null);
-
-      nextStep();
+      handleFinalizeAction();
     }
   };
   return (
     <View style={styles.container}>
       <View style={styles.textcontainer}>
-        {activeMessageIndex < SequenceText.length ? (
+        {isSleeping ? (
+          <Text style={styles.text}>Les loups-garoups se rendorment...</Text>
+        ) : activeMessageIndex < SequenceText.length ? (
           <Text style={styles.text}>{SequenceText[activeMessageIndex]}</Text>
         ) : (
           <FlatList
@@ -96,10 +100,10 @@ export default function WerewolvesBox() {
               </Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity
-                  style={[styles.closeButton, { borderColor: "#00CF0A" }]}
+                  style={[styles.closeButton, { borderColor: "#FDE4C5" }]}
                   onPress={handleConfirmVote}
                 >
-                  <Text style={[styles.closeButtonText, { color: "#00CF0A" }]}>
+                  <Text style={[styles.closeButtonText, { color: "#FDE4C5" }]}>
                     Confirmer
                   </Text>
                 </TouchableOpacity>

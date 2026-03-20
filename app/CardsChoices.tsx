@@ -28,6 +28,7 @@ export default function CardsChoices() {
   const players = useGameStore((s) => s.players);
   const setPlayerName = useGameStore((s) => s.setPlayerName);
   const setPhase = useGameStore((s) => s.setPhase);
+  const startNight = useGameStore((s) => s.startNight);
   const selectedPlayer = selectedIndex !== null ? players[selectedIndex] : null;
   useEffect(() => {
     initPlayers();
@@ -94,6 +95,7 @@ export default function CardsChoices() {
                   if (allPlayersReady) {
                     console.log("Start game");
                     setPhase("night");
+                    startNight();
                     router.push("/Game");
                   }
                 }}

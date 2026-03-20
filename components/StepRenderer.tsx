@@ -4,11 +4,13 @@ import { useGameStore } from "../store/gameStore";
 
 import WerewolvesBox from "./steps/WerewolvesBox";
 import SeerBox from "./steps/SeerBox";
+import WitchBox from "./steps/WitchBox";
 import { GameStep } from "../store/types";
 
 const STEP_COMPONENTS: Partial<Record<Exclude<GameStep, null>, React.FC>> = {
   werewolves: WerewolvesBox,
   seer: SeerBox,
+  witch: WitchBox,
 };
 
 export default function StepRenderer() {
