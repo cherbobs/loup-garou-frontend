@@ -61,10 +61,18 @@ export default function WerewolvesBox() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }: { item: Player }) => {
               const isFilled = !!item.name;
+              const isDisabled =
+                item.status === "dead" || item.role === "werewolf";
+              const isWerewolf = item.role === "werewolf";
 
               return (
                 <TouchableOpacity
-                  style={[styles.card]}
+                  style={[
+                    styles.card,
+                    isDisabled && { opacity: 0.4 },
+                    isWerewolf && styles.werewolfBorder,
+                  ]}
+                  disabled={isDisabled}
                   onPress={() => {
                     setSelectedPlayer(item);
                   }}
@@ -204,5 +212,9 @@ const styles = StyleSheet.create({
     color: "#CF000A",
     fontFamily: "SpecialElite",
     fontSize: 12,
+  },
+  werewolfBorder: {
+    borderColor: "#CF000A",
+    borderWidth: 3,
   },
 });
