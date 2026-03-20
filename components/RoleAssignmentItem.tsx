@@ -28,7 +28,7 @@ export default function RoleAssignmentItem({ item }: Props) {
       <View style={styles.infoContainer}>
         <Image source={item.image} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.number}>{item.description}</Text>
+        <Text style={styles.description}>{item.description}</Text>
       </View>
     </View>
   );
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     width: 340,
     height: 440,
   },
+
   infoContainer: {
     alignItems: "center",
     justifyContent: "space-between",
@@ -57,9 +58,10 @@ const styles = StyleSheet.create({
     fontFamily: "SpecialElite",
     fontSize: 32,
   },
-  number: {
+  description: {
     color: "#FDE4C5",
     fontFamily: "SpecialElite",
     fontSize: 16,
+    textAlign: "center",
   },
 });
