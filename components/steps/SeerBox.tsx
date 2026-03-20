@@ -169,17 +169,21 @@ export default function SeerBox() {
                     data={players}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }: { item: Player }) => {
-                      const isTargetedByWerewolves =
-                        !!item.isTargetedByWerewolves;
+                      const isDisabled =
+                        !!item.isTargetedByWerewolves ||
+                        item.status === "dead" ||
+                        item.role === "witch";
                       const isFilled = !!item.name;
+                      const isWitch = item.role === "witch";
 
                       return (
                         <TouchableOpacity
                           style={[
                             styles.card,
-                            isTargetedByWerewolves && { opacity: 0.4 },
+                            isDisabled && { opacity: 0.4 },
+                            isWitch && styles.witchBorder,
                           ]}
-                          disabled={isTargetedByWerewolves}
+                          disabled={isDisabled}
                           onPress={() => {
                             setSelectedPlayer(item);
                           }}
@@ -348,5 +352,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "SpecialElite",
     textAlign: "center",
+  },
+  witchBorder: {
+    borderColor: "#CF000A", // Rouge
+    borderWidth: 5,
   },
 });
