@@ -32,6 +32,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar style="light" translucent={true} />
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen
@@ -63,7 +64,6 @@ export default function RootLayout() {
             }}
           />
         </Stack>
-        <StatusBar style="light" />
       </ThemeProvider>
     </GestureHandlerRootView>
   );
