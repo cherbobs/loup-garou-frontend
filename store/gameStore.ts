@@ -134,7 +134,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const { phase, step } = get();
 
     if (phase === "night") {
-      const nightSteps: NightStep[] = ["werewolves", "seer", "witch", "nurse"];
+      const nightSteps: NightStep[] = ["werewolves", "witch", "seer", "nurse"];
 
       const index = nightSteps.indexOf(step as NightStep);
 

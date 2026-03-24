@@ -18,7 +18,7 @@ export type WitchPotions = {
 };
 export type GamePhase = "setup" | "night" | "day" | "ended";
 
-export type NightStep = "werewolves" | "seer" | "witch" | "nurse";
+export type NightStep = "werewolves" | "witch" | "seer" | "nurse";
 
 export type DayStep = "reveal" | "discussion" | "vote" | "elimination";
 
